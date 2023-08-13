@@ -26,7 +26,7 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
-#include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdint.h>
 
