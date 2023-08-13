@@ -30,23 +30,24 @@ Sound fxCoin = { 0 };
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-static const int screen_width  = 600;
-static const int screen_height = 600;
+static const int screen_width  = 1000;
+static const int screen_height = 1000;
 
 static uint64_t frames_counter = 0;
 
-const int square_1_mass = 1;
-const int square_2_mass = 1;
-// const float gravitational_constant = 6.67408e-11;
-const float gravitational_constant = 100;
+const int circle_1_mass = 1;
+const int circle_2_mass = 1;
+
+const float G = 200;
 
 // TODO: Maybe have a struct for these
-static float square_1_position_x = (screen_width/2)  - 128;
-static float square_1_position_y = (screen_height/2) - 128;
-static float square_2_position_x = (screen_width/2)  + 128;
-static float square_2_position_y = (screen_height/2) + 128;
+static float circle_1_position_x = (screen_width/2)  - 256;
+static float circle_1_position_y = (screen_height/2) - 256;
+static float circle_2_position_x = (screen_width/2)  + 256;
+static float circle_2_position_y = (screen_height/2) + 256;
 
 static int square_side_length = 16;
+static float circle_radius = 128.0f;
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -64,11 +65,12 @@ int main()
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(update_and_draw_game_frame, 60, 1);
 #else
-    SetTargetFPS(60);
+    SetTargetFPS(144);
 
     // Main game loop
     while (!WindowShouldClose())
     {
+        frames_counter++;
         update_game_state();
         draw_game_frame();
     }
@@ -90,35 +92,48 @@ int main()
 //--------------------------------------------------------------------------------------------------
 // Module specific Functions Definition
 //--------------------------------------------------------------------------------------------------
+
+// TODO: I need to implement momentum as well, will probably need a notion of forces instead of just manual velocity.
 static void update_game_state() {
-    frames_counter++;
+    // TODO: Obviously, this should be DRY'd up. I just wanna make sure this makes sense first.
+    float x_diff = abs(circle_2_position_x - circle_1_position_x);
+    float y_diff = abs(circle_2_position_y - circle_1_position_y);
 
-    float square_1_distance_x = square_2_position_x - square_1_position_x;
-    float square_1_distance_y = square_2_position_y - square_1_position_y;
-    float square_2_distance_x = square_1_position_x - square_2_position_x;
-    float square_2_distance_y = square_1_position_y - square_2_position_y;
+    float gravitational_force_between_the_circles = G * circle_1_mass * circle_2_mass / pow(x_diff + y_diff, 2);
 
-    float square_1_gravitational_force = gravitational_constant * square_1_mass * square_2_mass / (pow(square_1_distance_x, 2) + pow(square_1_distance_y, 2));
-    float square_2_gravitational_force = gravitational_constant * square_1_mass * square_2_mass / (pow(square_2_distance_x, 2) + pow(square_2_distance_y, 2));
+    float circle_1_velocity_x = (gravitational_force_between_the_circles * x_diff);
+    float circle_1_velocity_y = (gravitational_force_between_the_circles * y_diff);
+    float circle_2_velocity_x = (gravitational_force_between_the_circles * -x_diff);
+    float circle_2_velocity_y = (gravitational_force_between_the_circles * -y_diff);
 
-    float square_1_velocity_x = square_1_gravitational_force * square_1_distance_x;
-    float square_1_velocity_y = square_1_gravitational_force * square_1_distance_y;
-    float square_2_velocity_x = square_2_gravitational_force * square_2_distance_x;
-    float square_2_velocity_y = square_2_gravitational_force * square_2_distance_y;
+    // Close enough ya nammsayin.
+    const float sqrt_of_8 = 2.82842712474619f;
 
-    square_1_position_x += square_1_velocity_x;
-    square_1_position_y += square_1_velocity_y;
-    square_2_position_x += square_2_velocity_x;
-    square_2_position_y += square_2_velocity_y;
+    // Figure out if (radius_a + radius_b)^2 = x_diff^2 + y_diff^2
+    const float circle_1_circle_2_collision_distance = abs(2 * circle_radius);
+
+    // TODO: this looks very inefficient.
+    const float circle_origins_diff = sqrt(pow(x_diff, 2) + pow(y_diff, 2));
+    const bool are_squares_colliding = circle_origins_diff <= circle_1_circle_2_collision_distance;
+
+    printf("are_squares_colliding: %d\n", are_squares_colliding);
+
+    if (!are_squares_colliding) {
+        circle_1_position_x += circle_1_velocity_x;
+        circle_1_position_y += circle_1_velocity_y;
+        circle_2_position_x += circle_2_velocity_x;
+        circle_2_position_y += circle_2_velocity_y;
+    }
 }
 
 static void draw_game_frame() {
     // Draw
     BeginDrawing();
-        DrawCircle(square_1_position_x, square_1_position_y, 4.0f, BLACK);
-        DrawCircle(square_2_position_x, square_2_position_y, 4.0f, BLACK);
-        // Draw text displaying the frames_counter in the top left corner
+        DrawCircle(circle_1_position_x, circle_1_position_y, circle_radius, BLACK);
+        DrawCircle(circle_2_position_x, circle_2_position_y, circle_radius, BLACK);
+
         DrawText(TextFormat("Frames: %i", frames_counter), 10, 10, 20, LIME);
+
         ClearBackground(RAYWHITE);
     EndDrawing();
 }
