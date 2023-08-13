@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "*.kt": "kotlin",
-        "raylib.h": "c"
+        "raylib.h": "c",
+        "screens.h": "c"
     },
     "C_Cpp.default.compilerPath": "C:\\mingw64\\bin\\gcc.exe"
 }

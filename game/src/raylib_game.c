@@ -31,8 +31,18 @@ Sound fxCoin = { 0 };
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-static const int screenWidth = 1920;
-static const int screenHeight = 1080;
+static const int screen_width = 600;
+static const int screen_height = 600;
+
+static uint64_t frames_counter = 0;
+
+static int square_position_x = screen_width/2;
+static int square_position_y = screen_height/2;
+
+static int square_speed_x = 3;
+static int square_speed_y = 4;
+
+static int square_side_length = 16;
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -44,35 +54,35 @@ static GameScreenType transToScreen = UNKNOWN;
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
 //----------------------------------------------------------------------------------
-static void UpdateAndDrawGameFrame(void);          // Update and draw one frame
+static void update_and_draw_game_frame(void);
 
 int main(void)
 {
-    InitWindow(screenWidth, screenHeight, "Checking out raylib");
+    InitWindow(screen_width, screen_height, "Checking out raylib");
     
     InitAudioDevice();
 
     // Load global data (assets that must be available in all screens, i.e. font)
     font = LoadFont("resources/mecha.png");
-    music = LoadMusicStream("resources/ambient.ogg");
-    fxCoin = LoadSound("resources/coin.wav");
+    // music = LoadMusicStream("resources/ambient.ogg");
+    // fxCoin = LoadSound("resources/coin.wav");
 
-    SetMusicVolume(music, 0.0f);
-    PlayMusicStream(music);
+    // SetMusicVolume(music, 0.0f);
+    // PlayMusicStream(music);
 
     // Setup and init first screen
     current_screen = GUPPY;
 
 #if defined(PLATFORM_WEB)
-    emscripten_set_main_loop(UpdateAndDrawGameFrame, 60, 1);
+    emscripten_set_main_loop(update_and_draw_game_frame, 60, 1);
 #else
     SetTargetFPS(144);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
-        UpdateAndDrawGameFrame();
+        update_and_draw_game_frame();
     }
 #endif
 
@@ -81,8 +91,8 @@ int main(void)
 
     // Unload global data loaded
     UnloadFont(font);
-    UnloadMusicStream(music);
-    UnloadSound(fxCoin);
+    // UnloadMusicStream(music);1
+    // UnloadSound(fxCoin);
 
     CloseAudioDevice();
     CloseWindow();
@@ -93,15 +103,21 @@ int main(void)
 //----------------------------------------------------------------------------------
 // Module specific Functions Definition
 //----------------------------------------------------------------------------------
-static void UpdateAndDrawGameFrame(void) {
+static void update_and_draw_game_frame(void) {
     // Update
-    //----------------------------------------------------------------------------------
-    DrawRectangle(0, 0, 16, 16, BLACK);
+    frames_counter++;
 
-    //----------------------------------------------------------------------------------
+    if ((square_position_x + square_side_length) > screen_width || square_position_x < 0) square_speed_x *= -1;
+    if ((square_position_y + square_side_length) > screen_height || square_position_y < 0) square_speed_y *= -1;
+
+    square_position_x += square_speed_x;
+    square_position_y += square_speed_y;
+
     // Draw
-    //----------------------------------------------------------------------------------
     BeginDrawing();
-    ClearBackground(RAYWHITE);
+        DrawRectangle(square_position_x, square_position_y, 16, 16, BLACK);
+        // Draw text displaying the frames_counter in the top left corner
+        DrawText(TextFormat("Frames: %i", frames_counter), 10, 10, 20, LIME);
+        ClearBackground(RAYWHITE);
     EndDrawing();
 }

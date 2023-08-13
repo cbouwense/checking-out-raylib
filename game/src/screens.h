@@ -26,6 +26,10 @@
 #ifndef SCREENS_H
 #define SCREENS_H
 
+#include <assert.h>
+#include <stdio.h>
+#include <stdint.h>
+
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
