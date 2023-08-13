@@ -46,84 +46,6 @@ static int rightSideRecHeight = 0;
 static int state = 0;              // Logo animation states
 static float alpha = 1.0f;         // Useful for fading
 
-//----------------------------------------------------------------------------------
-// Logo Screen Functions Definition
-//----------------------------------------------------------------------------------
-
-// Logo Screen Initialization logic
-void InitLogoScreen(void)
-{
-    finishScreen = 0;
-    framesCounter = 0;
-    lettersCount = 0;
-
-    logoPositionX = GetScreenWidth()/2 - 128;
-    logoPositionY = GetScreenHeight()/2 - 128;
-
-    topSideRecWidth = 16;
-    leftSideRecHeight = 16;
-    bottomSideRecWidth = 16;
-    rightSideRecHeight = 16;
-
-    state = 0;
-    alpha = 1.0f;
-}
-
-// Logo Screen Update logic
-void UpdateLogoScreen(void)
-{
-    if (state == 0)                 // State 0: Top-left square corner blink logic
-    {
-        framesCounter++;
-
-        if (framesCounter == 80)
-        {
-            state = 1;
-            framesCounter = 0;      // Reset counter... will be used later...
-        }
-    }
-    else if (state == 1)            // State 1: Bars animation logic: top and left
-    {
-        topSideRecWidth += 8;
-        leftSideRecHeight += 8;
-
-        if (topSideRecWidth == 256) state = 2;
-    }
-    else if (state == 2)            // State 2: Bars animation logic: bottom and right
-    {
-        bottomSideRecWidth += 8;
-        rightSideRecHeight += 8;
-
-        if (bottomSideRecWidth == 256) state = 3;
-    }
-    else if (state == 3)            // State 3: "raylib" text-write animation logic
-    {
-        framesCounter++;
-
-        if (lettersCount < 10)
-        {
-            if (framesCounter/12)   // Every 12 frames, one more letter!
-            {
-                lettersCount++;
-                framesCounter = 0;
-            }
-        }
-        else    // When all letters have appeared, just fade out everything
-        {
-            if (framesCounter > 200)
-            {
-                alpha -= 0.02f;
-
-                if (alpha <= 0.0f)
-                {
-                    alpha = 0.0f;
-                    finishScreen = 1;   // Jump to next screen
-                }
-            }
-        }
-    }
-}
-
 // Logo Screen Draw logic
 void DrawLogoScreen(void)
 {
@@ -158,16 +80,4 @@ void DrawLogoScreen(void)
 
         if (framesCounter > 20) DrawText("powered by", logoPositionX, logoPositionY - 27, 20, Fade(DARKGRAY, alpha));
     }
-}
-
-// Logo Screen Unload logic
-void UnloadLogoScreen(void)
-{
-    // Unload LOGO screen variables here!
-}
-
-// Logo Screen should finish?
-int FinishLogoScreen(void)
-{
-    return finishScreen;
 }
