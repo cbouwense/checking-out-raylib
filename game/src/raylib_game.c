@@ -23,7 +23,7 @@
 // Shared Variables Definition (global)
 // NOTE: Those variables are shared between modules through screens.h
 //----------------------------------------------------------------------------------
-GameScreen currentScreen = GUPPY;
+GameScreenType current_screen = GUPPY;
 Font font = { 0 };
 Music music = { 0 };
 Sound fxCoin = { 0 };
@@ -39,7 +39,7 @@ static float transAlpha = 0.0f;
 static bool onTransition = false;
 static bool transFadeOut = false;
 static int transFromScreen = -1;
-static GameScreen transToScreen = UNKNOWN;
+static GameScreenType transToScreen = UNKNOWN;
 
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
@@ -61,7 +61,7 @@ int main(void)
     PlayMusicStream(music);
 
     // Setup and init first screen
-    currentScreen = GUPPY;
+    current_screen = GUPPY;
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateAndDrawGameFrame, 60, 1);
@@ -93,22 +93,10 @@ int main(void)
 //----------------------------------------------------------------------------------
 // Module specific Functions Definition
 //----------------------------------------------------------------------------------
-static void UpdateAndDrawGameFrame(void)
-{
+static void UpdateAndDrawGameFrame(void) {
     // Update
     //----------------------------------------------------------------------------------
-    if (!onTransition)
-    {
-        switch(currentScreen)
-        {
-            case GUPPY: 
-            {
-                DrawRectangle(0, 0, 16, 16, BLACK);
-            } break;
-
-            default: break;
-        }
-    }
+    DrawRectangle(0, 0, 16, 16, BLACK);
 
     //----------------------------------------------------------------------------------
     // Draw

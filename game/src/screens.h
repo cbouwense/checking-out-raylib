@@ -29,15 +29,15 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-typedef enum GameScreen {
+typedef enum GameScreenType {
     UNKNOWN = -1,
     GUPPY
-} GameScreen;
+} GameScreenType;
 
 //----------------------------------------------------------------------------------
 // Global Variables Declaration (shared by several modules)
 //----------------------------------------------------------------------------------
-extern GameScreen currentScreen;
+extern GameScreenType current_screen;
 extern Font font;
 extern Music music;
 extern Sound fxCoin;
